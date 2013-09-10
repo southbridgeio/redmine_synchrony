@@ -1,0 +1,19 @@
+<% content_for :header_tags do %>
+  <%= javascript_include_tag 'settings', plugin: 'redmine_synchrony' %>
+<% end %>
+<div id="synchrony-sites">
+  <% if settings['redmine'].present? %>
+    <% settings['redmine'].each_with_index do |redmine, index| %>
+      <fieldset class="box synchrony-site-settings">
+        <a href="#" class="icon icon-del contextual delete-synchrony-site">Delete</a>
+        <p>
+          <label for="settings_redmine_<%= index %>_source_site">Source site</label>
+          <input type="text" id="settings_redmine_<%= index %>_source_site"
+                 name="settings[redmine][][source_site]"
+                 value="<%= redmine['source_site'] %>">
+        </p>
+      </fieldset>
+    <% end %>
+  <% end %>
+</div>
+<a href='#' class='icon icon-add add-synchrony-site'>Add</a>
