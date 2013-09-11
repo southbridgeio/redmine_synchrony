@@ -1,5 +1,5 @@
 $(function(){
-
+  // TODO add unique project validation before save
   var properties = $('#synchrony-sites')
   var translations = properties.data('i18n')
   var projects = properties.data('projects')
