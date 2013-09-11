@@ -1,3 +1,9 @@
-# English strings go here for Rails i18n
 en:
-  # my_label: "My label"
+
+  synchrony:
+    settings:
+      source_site: "Source site"
+      api_key: "API key"
+      source_tracker: "Source tracker"
+      target_project: "Local target project"
+      target_tracker: "Local target tracker"

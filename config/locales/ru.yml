@@ -1,0 +1,9 @@
+ru:
+
+  synchrony:
+    settings:
+      source_site: "Адрес сайта для синхронизации"
+      api_key: "Ключ API"
+      source_tracker: "Трекер для синхронизации"
+      target_project: "Локальный проект для задач"
+      target_tracker: "Локальный трекер для задач"

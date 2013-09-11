@@ -1,16 +1,37 @@
 <% content_for :header_tags do %>
   <%= javascript_include_tag 'settings', plugin: 'redmine_synchrony' %>
 <% end %>
-<div id="synchrony-sites">
+<%
+   translations = {}.tap{ |t| %w(source_site api_key source_tracker target_project target_tracker).
+           each{ |k| t[k] = t("synchrony.settings.#{k}") }}.to_json
+   projects = {}.tap{ |p| Project.all.each{ |project| p[project.id] = project.name } }.to_json
+   trackers = {}.tap{ |t| Tracker.all.each{ |tracker| t[tracker.id] = tracker.name } }.to_json
+%>
+<div id="synchrony-sites" data-i18n="<%= translations %>" data-projects="<%= projects %>" data-trackers="<%= trackers %>">
   <% if settings['redmine'].present? %>
     <% settings['redmine'].each_with_index do |redmine, index| %>
       <fieldset class="box synchrony-site-settings">
         <a href="#" class="icon icon-del contextual delete-synchrony-site">Delete</a>
+        <% %w(source_site api_key source_tracker).each do |prop| %>
+          <p>
+            <label for="settings_redmine_<%= index %>_<%= prop %>"><%= t("synchrony.settings.#{prop}") %></label>
+            <input type="text" size="60"
+                   id="settings_redmine_<%= index %>_<%= prop %>"
+                   name="settings[redmine][][<%= prop %>]"
+                   value="<%= redmine[prop] %>">
+          </p>
+        <% end %>
         <p>
-          <label for="settings_redmine_<%= index %>_source_site">Source site</label>
-          <input type="text" id="settings_redmine_<%= index %>_source_site"
-                 name="settings[redmine][][source_site]"
-                 value="<%= redmine['source_site'] %>">
+          <label for="settings_redmine_<%= index %>_target_project"><%= t('synchrony.settings.target_project') %></label>
+          <%= select_tag 'settings[redmine][][target_project]',
+                         options_from_collection_for_select(Project.all, 'id', 'name', redmine['target_project']),
+                         include_blank: true, id: "settings_redmine_#{index}_target_project" %>
+        </p>
+        <p>
+          <label for="settings_redmine_<%= index %>_target_tracker"><%= t('synchrony.settings.target_tracker') %></label>
+          <%= select_tag 'settings[redmine][][target_tracker]',
+                         options_from_collection_for_select(Tracker.all, 'id', 'name', redmine['target_tracker']),
+                         include_blank: true, id: "settings_redmine_#{index}_target_tracker" %>
         </p>
       </fieldset>
     <% end %>
