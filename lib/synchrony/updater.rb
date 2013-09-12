@@ -6,27 +6,51 @@ module Synchrony
 
     def initialize(settings)
       @settings = settings
+      I18n.locale = :ru # TODO move to settings
+      prepare_remote_resources
+      prepare_local_resources
     end
 
     def update_issues
-      prepare_remote_resources
-      prepare_local_resources
+      created_issues = 0
+      updated_issues = 0
       issues = RemoteIssue.all(params: { tracker_id: source_tracker.id, updated_on: ">=#{Date.yesterday.strftime('%Y-%m-%d')}" })
       issues.each do |remote_issue|
         issue = Issue.where(synchrony_id: remote_issue.id, project_id: target_project).first
-        issue = create_issue(remote_issue) unless issue.present?
+        if issue.present?
+          remote_updated_on = Time.parse(remote_issue.updated_on)
+          if issue.updated_on != remote_updated_on
+            update_journals(issue, remote_issue)
+            Issue.where(id: issue.id).update_all(updated_on: remote_updated_on)
+            updated_issues += 1
+          end
+        else
+          issue = create_issue(remote_issue) unless issue.present?
+          update_journals(issue, remote_issue)
+          created_issues += 1
+        end
       end
+      puts "Issues created: #{created_issues}"
+      puts "Issues updated: #{updated_issues}"
     end
 
     private
 
     def prepare_remote_resources
-      RemoteTracker.site = source_site
-      RemoteTracker.headers['X-Redmine-API-Key'] = api_key
-      RemoteIssue.site = source_site
-      RemoteIssue.headers['X-Redmine-API-Key'] = api_key
-      unless source_tracker.present?
-        raise StandardError.new("#{I18n.t('synchrony.settings.source_tracker')} with name '#{settings['source_tracker']}' does not exists on #{source_site}")
+      %w(Synchrony::RemoteTracker Synchrony::RemoteIssue Synchrony::RemoteIssueStatus
+                Synchrony::RemoteUser Synchrony::RemoteIssuePriority).each do |resource_class_name|
+        resource_class = resource_class_name.constantize
+        resource_class.site = source_site
+        resource_class.headers['X-Redmine-API-Key'] = api_key
+      end
+      begin
+        unless source_tracker.present?
+          raise StandardError.new("#{I18n.t('synchrony.settings.source_tracker')} " +
+                                      "with name '#{settings['source_tracker']}' does not exists on #{source_site}")
+        end
+      rescue
+        raise StandardError.new("Connection refused to #{source_site}. " +
+                                    "Please check '#{I18n.t('synchrony.settings.source_site')}'")
       end
     end
 
@@ -65,26 +89,84 @@ module Synchrony
 
     def create_issue(remote_issue)
       description = "#{source_site}issues/#{remote_issue.id}\n\n________________\n\n#{remote_issue.description}"
-      Issue.create(
-          synchrony_id: remote_issue.id,
-          subject: remote_issue.subject,
-          description: description,
-          tracker: target_tracker,
-          project: target_project,
-          author: User.anonymous
-      )
+      Issue.transaction do
+        issue = Issue.create(
+            synchrony_id: remote_issue.id,
+            subject: remote_issue.subject,
+            description: description,
+            tracker: target_tracker,
+            project: target_project,
+            author: User.anonymous
+        )
+        Issue.where(id: issue.id).
+            update_all(created_on: Time.parse(remote_issue.created_on), updated_on: Time.parse(remote_issue.updated_on))
+        issue.reload
+      end
     end
 
-  end
+    def update_journals(issue, remote_issue)
+      remote_issue = RemoteIssue.find(remote_issue.id, params: { include: :journals })
+      remote_issue.journals.each_with_index do |remote_journal, index|
+        journal = issue.journals[index]
+        remote_created_on = Time.parse(remote_journal.created_on)
+        if journal.present? && journal.created_on != remote_created_on
+          issue.journals.delete(journal)
+          journal = nil
+        end
+        unless journal.present?
+          notes = "h3. \"#{remote_journal.user.name}\":#{source_site}users/#{remote_journal.user.id}:\n\n" +
+              "#{journal_details(remote_journal)}#{remote_journal.notes}"
+          Journal.transaction do
+            issue.journals.create(user: User.anonymous, notes: notes)
+            Journal.where(id: issue.journals.last.id).update_all(created_on: remote_created_on)
+          end
+        end
+        issue.journals.reload
+      end
+    end
 
-  class RemoteIssue < ActiveResource::Base
-    self.format = :xml
-    self.element_name = 'issue'
-  end
+    def journal_details(remote_journal)
+      return '' if remote_journal.details.empty?
+      remote_journal.details.map do |detail|
+        if detail.property == 'attr' && %w(status_id assigned_to_id priority_id).include?(detail.name)
+          self.send("details_for_#{detail.name}", detail)
+        end
+      end.reject{ |d| d.blank? }.join("\n") + "\n\n"
+    end
 
-  class RemoteTracker < ActiveResource::Base
-    self.format = :xml
-    self.element_name = 'tracker'
+    def details_for_status_id(detail)
+      result = ''
+      old_status = RemoteIssueStatus.by_id(detail.old_value)
+      new_status = RemoteIssueStatus.by_id(detail.new_value)
+      result << "*#{I18n.t(:label_issue_status)}:* "
+      result << old_status.name if old_status
+      result << ' >> '
+      result << new_status.name if new_status
+      result
+    end
+
+    def details_for_assigned_to_id(detail)
+      result = ''
+      old_user = RemoteUser.find(detail.old_value) if detail.old_value.present?
+      new_user = RemoteUser.find(detail.new_value) if detail.new_value.present?
+      result << "*#{I18n.t(:field_assigned_to)}:* "
+      result << "#{old_user.firstname} #{old_user.lastname}" if old_user
+      result << ' >> '
+      result << "#{new_user.firstname} #{new_user.lastname}" if new_user
+      result
+    end
+
+    def details_for_priority_id(detail)
+      result = ''
+      old_priority = RemoteIssuePriority.by_id(detail.old_value)
+      new_priority = RemoteIssuePriority.by_id(detail.new_value)
+      result << "*#{I18n.t(:field_priority)}:* "
+      result << old_priority.name if old_priority
+      result << ' >> '
+      result << new_priority.name if new_priority
+      result
+    end
+
   end
 
 end

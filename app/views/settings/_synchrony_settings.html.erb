@@ -2,8 +2,11 @@
   <%= javascript_include_tag 'settings', plugin: 'redmine_synchrony' %>
 <% end %>
 <%
-   translations = {}.tap{ |t| %w(source_site api_key source_tracker target_project target_tracker).
-           each{ |k| t[k] = t("synchrony.settings.#{k}") }}.to_json
+   translations = {}.tap do |t|
+     %w(source_site api_key source_tracker target_project target_tracker).
+             each{ |k| t[k] = t("synchrony.settings.#{k}") }
+     t['button_delete'] = t('button_delete')
+   end.to_json
    projects = {}.tap{ |p| Project.all.each{ |project| p[project.id] = project.name } }.to_json
    trackers = {}.tap{ |t| Tracker.all.each{ |tracker| t[tracker.id] = tracker.name } }.to_json
 %>
@@ -11,7 +14,7 @@
   <% if settings['redmine'].present? %>
     <% settings['redmine'].each_with_index do |redmine, index| %>
       <fieldset class="box synchrony-site-settings">
-        <a href="#" class="icon icon-del contextual delete-synchrony-site">Delete</a>
+        <a href="#" class="icon icon-del contextual delete-synchrony-site"><%= t('button_delete') %></a>
         <% %w(source_site api_key source_tracker).each do |prop| %>
           <p>
             <label for="settings_redmine_<%= index %>_<%= prop %>"><%= t("synchrony.settings.#{prop}") %></label>
@@ -37,4 +40,4 @@
     <% end %>
   <% end %>
 </div>
-<a href='#' class='icon icon-add add-synchrony-site'>Add</a>
+<a href='#' class='icon icon-add add-synchrony-site'><%= t('button_add') %></a>

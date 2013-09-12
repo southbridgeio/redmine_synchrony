@@ -1,4 +1,5 @@
 $(function(){
+  // TODO presence of params validation before save
   // TODO add unique project validation before save
   var properties = $('#synchrony-sites')
   var translations = properties.data('i18n')
@@ -28,7 +29,8 @@ $(function(){
     return $('<p>').append(
       label(field_name, nextId)
     ).append(
-      $('<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">').append(options)
+      $('<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">').
+        append(options)
     );
   };
 
@@ -37,7 +39,7 @@ $(function(){
     var nextRedmine = $('.synchrony-site-settings').length;
     $('#synchrony-sites').append(
       $('<fieldset>', { class: 'box synchrony-site-settings' }).append(
-          $('<a href="#" class="icon icon-del contextual delete-synchrony-site">Delete</a>')
+          $('<a href="#" class="icon icon-del contextual delete-synchrony-site">' + translations['button_delete'] + '</a>')
         ).append(
           inputField('source_site', nextRedmine)
         ).append(
