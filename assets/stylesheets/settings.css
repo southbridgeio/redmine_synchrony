@@ -1,0 +1,6 @@
+input.error-setting, select.error-setting {
+  border: 2px solid red;
+}
+.error-notice {
+  color: red;
+}

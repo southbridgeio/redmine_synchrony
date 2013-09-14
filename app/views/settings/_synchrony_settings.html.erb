@@ -1,4 +1,5 @@
 <% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'settings', plugin: 'redmine_synchrony' %>
   <%= javascript_include_tag 'settings', plugin: 'redmine_synchrony' %>
 <% end %>
 <%
@@ -6,6 +7,8 @@
      %w(source_site api_key source_tracker target_project target_tracker).
              each{ |k| t[k] = t("synchrony.settings.#{k}") }
      t['button_delete'] = t('button_delete')
+     t['errors.blank'] = t('activerecord.errors.messages.blank')
+     t['errors.uniqueness'] = t('synchrony.errors.messages.uniqueness')
    end.to_json
    projects = {}.tap{ |p| Project.all.each{ |project| p[project.id] = project.name } }.to_json
    trackers = {}.tap{ |t| Tracker.all.each{ |tracker| t[tracker.id] = tracker.name } }.to_json

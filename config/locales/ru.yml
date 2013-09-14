@@ -7,3 +7,6 @@ ru:
       source_tracker: "Трекер для синхронизации"
       target_project: "Локальный проект для задач"
       target_tracker: "Локальный трекер для задач"
+    errors:
+      messages:
+        uniqueness: "должен быть уникальным"
