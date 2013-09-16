@@ -45,38 +45,30 @@ module Synchrony
         resource_class.headers['X-Redmine-API-Key'] = api_key
       end
       begin
-        unless source_tracker.present?
-          raise StandardError.new("#{I18n.t('synchrony.settings.source_tracker')} " +
-                                      "with name '#{settings['source_tracker']}' does not exists on #{source_site}")
-        end
-      rescue
-        raise StandardError.new("Connection refused to #{source_site}. " +
-                                    "Please check '#{I18n.t('synchrony.settings.source_site')}'")
+        raise Errors::InvalidSourceTrackerError.new(settings['source_tracker'], source_site) unless source_tracker.present?
+      rescue SocketError
+        raise Errors::InvalidSourceSiteError.new(source_site)
       end
     end
 
     def prepare_local_resources
-      raise_setting_not_defined('target_project') unless target_project.present?
-      raise_setting_not_defined('target_tracker') unless target_tracker.present?
+      raise Errors::InvalidSettingError.new('target_project') unless target_project.present?
+      raise Errors::InvalidSettingError.new('target_tracker') unless target_tracker.present?
       target_project.trackers << target_tracker unless target_project.trackers.include?(target_tracker)
     end
 
-    def raise_setting_not_defined(setting_name)
-      raise StandardError.new("Define '#{I18n.t("synchrony.settings.#{setting_name}")}' in settings")
-    end
-
     def source_site
-      raise_setting_not_defined('source_site') unless settings['source_site'].present?
+      raise Errors::InvalidSettingError.new('source_site') unless settings['source_site'].present?
       @source_site ||= (settings['source_site'].end_with?('/') ? settings['source_site'] : "#{settings['source_site']}/")
     end
 
     def api_key
-      raise_setting_not_defined('api_key') unless settings['api_key'].present?
+      raise Errors::InvalidSettingError.new('api_key') unless settings['api_key'].present?
       @api_key ||= settings['api_key']
     end
 
     def source_tracker
-      raise_setting_not_defined('source_tracker') unless settings['source_tracker'].present?
+      raise Errors::InvalidSettingError.new('source_tracker') unless settings['source_tracker'].present?
       @source_tracker ||= RemoteTracker.all.find{ |t| t.name == settings['source_tracker'] }
     end
 

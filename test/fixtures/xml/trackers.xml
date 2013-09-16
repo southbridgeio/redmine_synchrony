@@ -1,0 +1,18 @@
+<trackers type="array">
+  <tracker>
+    <id>1</id>
+    <name>Bugs</name>
+  </tracker>
+  <tracker>
+    <id>2</id>
+    <name>Improvement</name>
+  </tracker>
+  <tracker>
+    <id>3</id>
+    <name>Support</name>
+  </tracker>
+  <tracker>
+    <id>4</id>
+    <name>Administration</name>
+  </tracker>
+</trackers>
