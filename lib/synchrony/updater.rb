@@ -14,14 +14,15 @@ module Synchrony
     def update_issues
       created_issues = 0
       updated_issues = 0
-      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id, updated_on: ">=#{Date.yesterday.strftime('%Y-%m-%d')}" })
+      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id,
+                                         updated_on: ">=#{Date.yesterday.strftime('%Y-%m-%d')}" })
       issues.each do |remote_issue|
         issue = Issue.where(synchrony_id: remote_issue.id, project_id: target_project).first
         if issue.present?
           remote_updated_on = Time.parse(remote_issue.updated_on)
-          if issue.updated_on != remote_updated_on
+          if issue.synchronized_at != remote_updated_on
             update_journals(issue, remote_issue)
-            Issue.where(id: issue.id).update_all(updated_on: remote_updated_on)
+            issue.update_column(:synchronized_at, remote_updated_on)
             updated_issues += 1
           end
         else
@@ -96,10 +97,9 @@ module Synchrony
             description: description,
             tracker: target_tracker,
             project: target_project,
-            author: User.anonymous
+            author: User.anonymous,
+            synchronized_at: Time.parse(remote_issue.updated_on)
         )
-        Issue.where(id: issue.id).
-            update_all(created_on: Time.parse(remote_issue.created_on), updated_on: Time.parse(remote_issue.updated_on))
         issue.reload
       end
     end
