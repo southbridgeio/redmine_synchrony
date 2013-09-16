@@ -106,18 +106,14 @@ module Synchrony
 
     def update_journals(issue, remote_issue)
       remote_issue = RemoteIssue.find(remote_issue.id, params: { include: :journals })
-      remote_issue.journals.each_with_index do |remote_journal, index|
-        journal = issue.journals[index]
+      remote_issue.journals.each do |remote_journal|
+        journal = issue.journals.where(synchrony_id: remote_journal.id).first
         remote_created_on = Time.parse(remote_journal.created_on)
-        if journal.present? && journal.created_on != remote_created_on
-          issue.journals.delete(journal)
-          journal = nil
-        end
         unless journal.present?
           notes = "h3. \"#{remote_journal.user.name}\":#{source_site}users/#{remote_journal.user.id}:\n\n" +
               "#{journal_details(remote_journal)}#{remote_journal.notes}"
           Journal.transaction do
-            issue.journals.create(user: User.anonymous, notes: notes)
+            issue.journals.create(user: User.anonymous, notes: notes, synchrony_id: remote_journal.id)
             Journal.where(id: issue.journals.last.id).update_all(created_on: remote_created_on)
           end
         end
