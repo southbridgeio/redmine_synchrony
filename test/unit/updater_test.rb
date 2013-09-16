@@ -46,6 +46,12 @@ class UpdaterTest < ActiveSupport::TestCase
     end
   end
 
+  def test_language
+    @valid_settings['language'] = :ru
+    Synchrony::Updater.new(@valid_settings)
+    assert I18n.locale == :ru
+  end
+
   def test_tracker_adds_to_project_when_it_not_added
     @target_project.trackers.delete(@target_tracker)
     Synchrony::Updater.new(@valid_settings)

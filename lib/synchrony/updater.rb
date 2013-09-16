@@ -9,7 +9,7 @@ module Synchrony
     def initialize(settings)
       @settings = settings
       Rails.logger = Logger.new(STDOUT) unless Rails.env.test?
-      I18n.locale = :ru # TODO move to settings
+      I18n.locale = @settings['language'].to_sym if @settings['language'].present?
       prepare_remote_resources
       prepare_local_resources
     end
@@ -34,8 +34,7 @@ module Synchrony
           created_issues += 1
         end
       end
-      Rails.logger.info "Issues created: #{created_issues}"
-      Rails.logger.info "Issues updated: #{updated_issues}"
+      Rails.logger.info "Site '#{source_site}' issues created: #{created_issues}, issues updated: #{updated_issues}"
     end
 
     private

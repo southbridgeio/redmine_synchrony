@@ -3,38 +3,53 @@ $(function(){
   var translations = properties.data('i18n')
   var projects = properties.data('projects')
   var trackers = properties.data('trackers')
+  var languages = properties.data('languages')
 
-  var label = function(field_name, nextId){
-    return $('<label for="settings_redmine_' + nextId + '_' + field_name + '">' + translations[field_name] + '</label>');
+  var label = function(field_name, nextId, required){
+    if(typeof(required)==='undefined') required = false;
+    var result_label = $(
+      '<label for="settings_redmine_' + nextId + '_' + field_name + '">' + translations[field_name] + '</label>'
+    );
+    if (required){
+      result_label.append('<span class="required"> *</span>');
+    }
+    return result_label;
   };
 
   var inputField = function(field_name, nextId){
     return $('<p>').append(
-      label(field_name, nextId)
+      label(field_name, nextId, true)
     ).append(
-      $('<input type="text" size="60" id="settings_redmine_' + nextId + '_' + field_name +
+      $('<input type="text" size="60" class="required" id="settings_redmine_' + nextId + '_' + field_name +
         '" name="settings[redmine][][' + field_name + ']">')
     );
   };
 
-  var selectField = function(field_name, values, nextId){
-    var options = [$('<option></option>')];
+  var selectField = function(field_name, values, nextId, required){
+    if(typeof(required)==='undefined') required = false;
+    var options = [];
+    if(!values.hasOwnProperty('')){
+      options.push($('<option></option>'));
+    }
     for (var id in values) {
       if (values.hasOwnProperty(id)) {
         options.push($('<option value="' + id + '">' + values[id] + '</option>'))
       }
     }
+    var select = $(
+      '<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">'
+    ).append(options);
+    if(required){
+      select.addClass('required');
+    }
     return $('<p>').append(
-      label(field_name, nextId)
-    ).append(
-      $('<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">').
-        append(options)
-    );
+      label(field_name, nextId, required)
+    ).append(select);
   };
 
   var validatePresence = function() {
     var errorCount = 0;
-    $('#settings input, #settings select').not('#settings input[type="hidden"]').each(function(){
+    $('#settings input.required, #settings select.required').each(function(){
       var $this = $(this);
       if($this.val() === ''){
         if(!errorDisplayed($this)) {
@@ -93,7 +108,10 @@ $(function(){
     var nextRedmine = $('.synchrony-site-settings').length;
     $('#synchrony-sites').append(
       $('<fieldset>', { class: 'box synchrony-site-settings' }).append(
-          $('<a href="#" class="icon icon-del contextual delete-synchrony-site">' + translations['button_delete'] + '</a>')
+          $(
+            '<a href="#" class="icon icon-del contextual delete-synchrony-site">' +
+              translations['button_delete'] + '</a>'
+          )
         ).append(
           inputField('source_site', nextRedmine)
         ).append(
@@ -101,9 +119,11 @@ $(function(){
         ).append(
           inputField('source_tracker', nextRedmine)
         ).append(
-          selectField('target_project', projects, nextRedmine)
+          selectField('target_project', projects, nextRedmine, true)
         ).append(
-          selectField('target_tracker', trackers, nextRedmine)
+          selectField('target_tracker', trackers, nextRedmine, true)
+        ).append(
+          selectField('language', languages, nextRedmine)
         )
     );
   });

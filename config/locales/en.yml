@@ -7,6 +7,7 @@ en:
       source_tracker: "Source tracker"
       target_project: "Local target project"
       target_tracker: "Local target tracker"
+      language: "Language for notes"
     errors:
       messages:
         uniqueness: "must be uniqueness"

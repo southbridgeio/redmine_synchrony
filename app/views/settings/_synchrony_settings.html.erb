@@ -4,7 +4,7 @@
 <% end %>
 <%
    translations = {}.tap do |t|
-     %w(source_site api_key source_tracker target_project target_tracker).
+     %w(source_site api_key source_tracker target_project target_tracker language).
              each{ |k| t[k] = t("synchrony.settings.#{k}") }
      t['button_delete'] = t('button_delete')
      t['errors.blank'] = t('activerecord.errors.messages.blank')
@@ -12,32 +12,49 @@
    end.to_json
    projects = {}.tap{ |p| Project.all.each{ |project| p[project.id] = project.name } }.to_json
    trackers = {}.tap{ |t| Tracker.all.each{ |tracker| t[tracker.id] = tracker.name } }.to_json
+   languages = {}.tap{ |l| lang_options_for_select.each{ |lang| l[lang[1]] = lang[0] } }.to_json
 %>
-<div id="synchrony-sites" data-i18n="<%= translations %>" data-projects="<%= projects %>" data-trackers="<%= trackers %>">
+<div id="synchrony-sites" data-i18n="<%= translations %>"
+     data-projects="<%= projects %>" data-trackers="<%= trackers %>" data-languages="<%= languages %>">
   <% if settings['redmine'].present? %>
     <% settings['redmine'].each_with_index do |redmine, index| %>
       <fieldset class="box synchrony-site-settings">
         <a href="#" class="icon icon-del contextual delete-synchrony-site"><%= t('button_delete') %></a>
         <% %w(source_site api_key source_tracker).each do |prop| %>
           <p>
-            <label for="settings_redmine_<%= index %>_<%= prop %>"><%= t("synchrony.settings.#{prop}") %></label>
-            <input type="text" size="60"
+            <label for="settings_redmine_<%= index %>_<%= prop %>">
+              <%= t("synchrony.settings.#{prop}") %>
+              <span class="required"> *</span>
+            </label>
+            <input type="text" size="60" class='required'
                    id="settings_redmine_<%= index %>_<%= prop %>"
                    name="settings[redmine][][<%= prop %>]"
                    value="<%= redmine[prop] %>">
           </p>
         <% end %>
         <p>
-          <label for="settings_redmine_<%= index %>_target_project"><%= t('synchrony.settings.target_project') %></label>
+          <label for="settings_redmine_<%= index %>_target_project">
+            <%= t('synchrony.settings.target_project') %>
+            <span class="required"> *</span>
+          </label>
           <%= select_tag 'settings[redmine][][target_project]',
                          options_from_collection_for_select(Project.all, 'id', 'name', redmine['target_project']),
-                         include_blank: true, id: "settings_redmine_#{index}_target_project" %>
+                         include_blank: true, id: "settings_redmine_#{index}_target_project", class: 'required' %>
         </p>
         <p>
-          <label for="settings_redmine_<%= index %>_target_tracker"><%= t('synchrony.settings.target_tracker') %></label>
+          <label for="settings_redmine_<%= index %>_target_tracker">
+            <%= t('synchrony.settings.target_tracker') %>
+            <span class="required"> *</span>
+          </label>
           <%= select_tag 'settings[redmine][][target_tracker]',
                          options_from_collection_for_select(Tracker.all, 'id', 'name', redmine['target_tracker']),
-                         include_blank: true, id: "settings_redmine_#{index}_target_tracker" %>
+                         include_blank: true, id: "settings_redmine_#{index}_target_tracker", class: 'required' %>
+        </p>
+        <p>
+          <label for="settings_redmine_<%= index %>_language"><%= t('synchrony.settings.language') %></label>
+          <%= select_tag 'settings[redmine][][language]',
+                         options_for_select(lang_options_for_select, redmine['language']),
+                         id: "settings_redmine_#{index}_language" %>
         </p>
       </fieldset>
     <% end %>
