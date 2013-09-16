@@ -77,7 +77,8 @@ module Synchrony
 
     def source_tracker
       raise Errors::InvalidSettingError.new('source_tracker') unless settings['source_tracker'].present?
-      @source_tracker ||= RemoteTracker.all.find{ |t| t.name == settings['source_tracker'] }
+      @source_tracker ||= RemoteTracker.all.
+          find{ |t| t.name.mb_chars.downcase == settings['source_tracker'].mb_chars.downcase }
     end
 
     def target_project

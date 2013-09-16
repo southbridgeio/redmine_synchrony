@@ -8,12 +8,12 @@ class UpdaterTest < ActiveSupport::TestCase
 
   def setup
     remote_redmine_url = 'http://remote-redmine.org/'
-    source_tracker = OpenStruct.new(id: 4, name: 'Administration') # from fixtures
-    fake_remote_redmine(remote_redmine_url, source_tracker)
+    @source_tracker = OpenStruct.new(id: 4, name: 'Administration') # from fixtures
+    fake_remote_redmine(remote_redmine_url, @source_tracker)
     @target_project = Project.find(1)
     @target_tracker = Tracker.find(1)
     @valid_settings = {
-        'source_site' => remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => source_tracker.name,
+        'source_site' => remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => @source_tracker.name,
         'target_project' => @target_project.id.to_s, 'target_tracker' => @target_tracker.id.to_s
     }
   end
@@ -44,6 +44,12 @@ class UpdaterTest < ActiveSupport::TestCase
     assert_raises(Synchrony::Errors::InvalidSourceTrackerError) do
       Synchrony::Updater.new(invalid_settings)
     end
+  end
+
+  def test_source_tracker_case_insensitive
+    @valid_settings['source_tracker'] = 'admiNIstrATion'
+    updater = Synchrony::Updater.new(@valid_settings)
+    assert updater.send(:source_tracker) != nil
   end
 
   def test_language
