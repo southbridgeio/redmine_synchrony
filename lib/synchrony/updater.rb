@@ -2,20 +2,23 @@ module Synchrony
 
   class Updater
 
+    START_DATE = Date.yesterday.strftime('%Y-%m-%d')
+
     attr_reader :settings
 
     def initialize(settings)
       @settings = settings
+      Rails.logger = Logger.new(STDOUT) unless Rails.env.test?
       I18n.locale = :ru # TODO move to settings
       prepare_remote_resources
       prepare_local_resources
     end
 
-    def update_issues
+    def sync_issues
       created_issues = 0
       updated_issues = 0
       issues = RemoteIssue.all(params: { tracker_id: source_tracker.id,
-                                         updated_on: ">=#{Date.yesterday.strftime('%Y-%m-%d')}" })
+                                         updated_on: ">=#{START_DATE}" })
       issues.each do |remote_issue|
         issue = Issue.where(synchrony_id: remote_issue.id, project_id: target_project).first
         if issue.present?
@@ -31,8 +34,8 @@ module Synchrony
           created_issues += 1
         end
       end
-      puts "Issues created: #{created_issues}"
-      puts "Issues updated: #{updated_issues}"
+      Rails.logger.info "Issues created: #{created_issues}"
+      Rails.logger.info "Issues updated: #{updated_issues}"
     end
 
     private
@@ -45,7 +48,9 @@ module Synchrony
         resource_class.headers['X-Redmine-API-Key'] = api_key
       end
       begin
-        raise Errors::InvalidSourceTrackerError.new(settings['source_tracker'], source_site) unless source_tracker.present?
+        unless source_tracker.present?
+          raise Errors::InvalidSourceTrackerError.new(settings['source_tracker'], source_site)
+        end
       rescue SocketError
         raise Errors::InvalidSourceSiteError.new(source_site)
       end
@@ -59,7 +64,11 @@ module Synchrony
 
     def source_site
       raise Errors::InvalidSettingError.new('source_site') unless settings['source_site'].present?
-      @source_site ||= (settings['source_site'].end_with?('/') ? settings['source_site'] : "#{settings['source_site']}/")
+      @source_site ||= if settings['source_site'].end_with?('/')
+                         settings['source_site']
+                       else
+                         "#{settings['source_site']}/"
+                       end
     end
 
     def api_key
@@ -82,31 +91,27 @@ module Synchrony
 
     def create_issue(remote_issue)
       description = "#{source_site}issues/#{remote_issue.id}\n\n________________\n\n#{remote_issue.description}"
-      Issue.transaction do
-        issue = Issue.create(
-            synchrony_id: remote_issue.id,
-            subject: remote_issue.subject,
-            description: description,
-            tracker: target_tracker,
-            project: target_project,
-            author: User.anonymous,
-            synchronized_at: Time.parse(remote_issue.updated_on)
-        )
-        issue.reload
-      end
+      Issue.create(
+          synchrony_id: remote_issue.id,
+          subject: remote_issue.subject,
+          description: description,
+          tracker: target_tracker,
+          project: target_project,
+          author: User.anonymous,
+          synchronized_at: Time.parse(remote_issue.updated_on)
+      )
     end
 
     def update_journals(issue, remote_issue)
       remote_issue = RemoteIssue.find(remote_issue.id, params: { include: :journals })
       remote_issue.journals.each do |remote_journal|
         journal = issue.journals.where(synchrony_id: remote_journal.id).first
-        remote_created_on = Time.parse(remote_journal.created_on)
         unless journal.present?
           notes = "h3. \"#{remote_journal.user.name}\":#{source_site}users/#{remote_journal.user.id}:\n\n" +
               "#{journal_details(remote_journal)}#{remote_journal.notes}"
           Journal.transaction do
-            issue.journals.create(user: User.anonymous, notes: notes, synchrony_id: remote_journal.id)
-            Journal.where(id: issue.journals.last.id).update_all(created_on: remote_created_on)
+            journal = issue.journals.create(user: User.anonymous, notes: notes, synchrony_id: remote_journal.id)
+            Journal.where(id: journal.id).update_all(created_on: Time.parse(remote_journal.created_on))
           end
         end
         issue.journals.reload

@@ -1,0 +1,11 @@
+<user>
+  <id>1</id>
+  <login>admin</login>
+  <firstname>Redmine</firstname>
+  <lastname>Admin</lastname>
+  <mail>admin@example.net</mail>
+  <created_on>2013-09-10T13:16:36Z</created_on>
+  <last_login_on>2013-09-16T14:50:17Z</last_login_on>
+  <api_key>d632644143fd7a41f37df26e44a59480d29bf19a</api_key>
+  <status>1</status>
+</user>

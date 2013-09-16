@@ -1,0 +1,27 @@
+<issue_priorities type="array">
+  <issue_priority>
+    <id>1</id>
+    <name>Low</name>
+    <is_default>false</is_default>
+  </issue_priority>
+  <issue_priority>
+    <id>2</id>
+    <name>Normal</name>
+    <is_default>true</is_default>
+  </issue_priority>
+  <issue_priority>
+    <id>3</id>
+    <name>High</name>
+    <is_default>false</is_default>
+  </issue_priority>
+  <issue_priority>
+    <id>4</id>
+    <name>Urgent</name>
+    <is_default>false</is_default>
+  </issue_priority>
+  <issue_priority>
+    <id>5</id>
+    <name>Immediate</name>
+    <is_default>false</is_default>
+  </issue_priority>
+</issue_priorities>

@@ -1,0 +1,38 @@
+<issue>
+  <id>1</id>
+  <project id="1" name="REPO"/>
+  <tracker id="1" name="Administration"/>
+  <status id="1" name="New"/>
+  <priority id="2" name="Normal"/>
+  <author id="1" name="Redmine Admin"/>
+  <assigned_to id="1" name="Redmine Admin"/>
+  <subject>Welcome to our world</subject>
+  <description>Find your path</description>
+  <start_date>2013-09-10</start_date>
+  <due_date/>
+  <done_ratio>0</done_ratio>
+  <estimated_hours/>
+  <spent_hours>0.0</spent_hours>
+  <created_on>2013-09-10T13:50:37Z</created_on>
+  <updated_on>2013-09-10T14:59:08Z</updated_on>
+  <closed_on/>
+  <journals type="array">
+    <journal id="1">
+      <user id="1" name="Redmine Admin"/>
+      <notes/>
+      <created_on>2013-09-10T13:53:52Z</created_on>
+      <details type="array">
+        <detail property="attr" name="assigned_to_id">
+          <old_value/>
+          <new_value>1</new_value>
+        </detail>
+      </details>
+    </journal>
+    <journal id="2">
+      <user id="1" name="Redmine Admin"/>
+      <notes>Some comment...</notes>
+      <created_on>2013-09-10T14:59:08Z</created_on>
+      <details type="array"/>
+    </journal>
+  </journals>
+</issue>

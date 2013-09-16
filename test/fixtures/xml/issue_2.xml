@@ -1,0 +1,76 @@
+<issue>
+  <id>2</id>
+  <project id="1" name="REPO"/>
+  <tracker id="4" name="Administration"/>
+  <status id="4" name="Feedback"/>
+  <priority id="3" name="High"/>
+  <author id="1" name="Redmine Admin"/>
+  <assigned_to id="1" name="Redmine Admin"/>
+  <subject>Setup engine</subject>
+  <description>And be happy</description>
+  <start_date>2013-09-12</start_date>
+  <due_date/>
+  <done_ratio>0</done_ratio>
+  <estimated_hours/>
+  <spent_hours>0.0</spent_hours>
+  <created_on>2013-09-11T19:41:37Z</created_on>
+  <updated_on>2013-09-12T17:17:56Z</updated_on>
+  <closed_on/>
+  <journals type="array">
+    <journal id="3">
+      <user id="1" name="Redmine Admin"/>
+      <notes>Text comment</notes>
+      <created_on>2013-09-12T14:17:50Z</created_on>
+      <details type="array"/>
+    </journal>
+    <journal id="4">
+      <user id="1" name="Redmine Admin"/>
+      <notes>Text comment with status changing</notes>
+      <created_on>2013-09-12T14:39:48Z</created_on>
+      <details type="array">
+        <detail property="attr" name="status_id">
+          <old_value>1</old_value>
+          <new_value>2</new_value>
+        </detail>
+      </details>
+    </journal>
+    <journal id="5">
+      <user id="1" name="Redmine Admin"/>
+      <notes/>
+      <created_on>2013-09-12T14:39:56Z</created_on>
+      <details type="array">
+        <detail property="attr" name="status_id">
+          <old_value>2</old_value>
+          <new_value>4</new_value>
+        </detail>
+      </details>
+    </journal>
+    <journal id="6">
+      <user id="1" name="Redmine Admin"/>
+      <notes>"Some link":http://google.com</notes>
+      <created_on>2013-09-12T15:28:52Z</created_on>
+      <details type="array"/>
+    </journal>
+    <journal id="7">
+      <user id="1" name="Redmine Admin"/>
+      <notes/>
+      <created_on>2013-09-12T15:30:08Z</created_on>
+      <details type="array">
+        <detail property="attr" name="assigned_to_id">
+          <old_value/>
+          <new_value>1</new_value>
+        </detail>
+        <detail property="attr" name="priority_id">
+          <old_value>2</old_value>
+          <new_value>3</new_value>
+        </detail>
+      </details>
+    </journal>
+    <journal id="8">
+      <user id="1" name="Redmine Admin"/>
+      <notes>Another text comment</notes>
+      <created_on>2013-09-12T17:17:56Z</created_on>
+      <details type="array"/>
+    </journal>
+  </journals>
+</issue>

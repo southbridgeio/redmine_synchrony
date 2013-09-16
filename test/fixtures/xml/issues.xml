@@ -1,0 +1,38 @@
+<issues total_count="2" offset="0" limit="25" type="array">
+  <issue>
+    <id>2</id>
+    <project id="1" name="REPO"/>
+    <tracker id="4" name="Administration"/>
+    <status id="4" name="Feedback"/>
+    <priority id="3" name="High"/>
+    <author id="1" name="Redmine Admin"/>
+    <assigned_to id="1" name="Redmine Admin"/>
+    <subject>Setup engine</subject>
+    <description>And be happy</description>
+    <start_date>2013-09-12</start_date>
+    <due_date/>
+    <done_ratio>0</done_ratio>
+    <estimated_hours/>
+    <created_on>2013-09-11T19:41:37Z</created_on>
+    <updated_on>2013-09-16T15:06:28Z</updated_on>
+    <closed_on/>
+  </issue>
+  <issue>
+    <id>1</id>
+    <project id="1" name="REPO"/>
+    <tracker id="1" name="Administration"/>
+    <status id="1" name="New"/>
+    <priority id="2" name="Normal"/>
+    <author id="1" name="Redmine Admin"/>
+    <assigned_to id="1" name="Redmine Admin"/>
+    <subject>Welcome to our world</subject>
+    <description>Find your path</description>
+    <start_date>2013-09-10</start_date>
+    <due_date/>
+    <done_ratio>0</done_ratio>
+    <estimated_hours/>
+    <created_on>2013-09-10T13:50:37Z</created_on>
+    <updated_on>2013-09-10T14:59:08Z</updated_on>
+    <closed_on/>
+  </issue>
+</issues>
