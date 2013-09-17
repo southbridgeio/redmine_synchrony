@@ -17,7 +17,7 @@ RAILS_ENV=production rake redmine:plugins:migrate
 
 2. Clone repository to your redmine/plugins directory
 ```
-git clone https://github.com/kanfet/redmine_synchrony.git
+git clone https://github.com/olemskoi/redmine_synchrony.git
 ```
 
 3. Run migrations
