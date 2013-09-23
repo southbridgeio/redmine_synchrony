@@ -6,7 +6,8 @@ module Synchrony
     self.prefix = '/enumerations/'
 
     def self.by_id(id)
-      RemoteIssuePriority.all.find{ |s| s.id == id }
+      priorities = RemoteIssuePriority.all
+      priorities.find{ |s| s.id == id } if priorities.present?
     end
   end
 

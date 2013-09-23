@@ -7,13 +7,13 @@ class UpdaterTest < ActiveSupport::TestCase
   fixtures :projects, :trackers, :issue_statuses, :enumerations, :issues, :journals, :users
 
   def setup
-    remote_redmine_url = 'http://remote-redmine.org/'
+    @remote_redmine_url = 'http://remote-redmine.org/'
     @source_tracker = OpenStruct.new(id: 4, name: 'Administration') # from fixtures
-    fake_remote_redmine(remote_redmine_url, @source_tracker)
+    fake_remote_redmine(@remote_redmine_url, @source_tracker)
     @target_project = Project.find(1)
     @target_tracker = Tracker.find(1)
     @valid_settings = {
-        'source_site' => remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => @source_tracker.name,
+        'source_site' => @remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => @source_tracker.name,
         'target_project' => @target_project.id.to_s, 'target_tracker' => @target_tracker.id.to_s
     }
   end
@@ -135,6 +135,15 @@ class UpdaterTest < ActiveSupport::TestCase
     journal = Journal.where(synchrony_id: 7).first # from fixture
     assert journal.notes.include?('Normal'), 'Journal should have priority changing text'
     assert journal.notes.include?('High'), 'Journal should have priority changing text'
+  end
+
+  def test_journal_priority_detail_for_old_redmine_versions
+    FakeWeb.register_uri(:get, "#{@remote_redmine_url}enumerations/issue_priorities.xml",
+                         status: ['404', 'Not found'])
+    Synchrony::Updater.new(@valid_settings).sync_issues
+    journal = Journal.where(synchrony_id: 7).first # from fixture
+    assert !journal.notes.include?('Normal'), 'Journal should not have priority changing text'
+    assert !journal.notes.include?('High'), 'Journal should not have priority changing text'
   end
 
   private

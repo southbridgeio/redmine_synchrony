@@ -1,8 +1,7 @@
 # Redmine Synchrony
 
 Plugin makes copies of last updated issues and journals from another redmine instance via API.
-Plugin compatible with Redmine 2.0.x, 2.1.x, 2.2.x, 2.3.x.
-IMPORTANT! Remote redmine instance should have version 2.2.x or higher.
+Plugin compatible with Redmine 2.0.x, 2.1.x, 2.2.x, 2.3.x (for source and destination instance)
 
 ## WARNING
 

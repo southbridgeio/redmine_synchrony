@@ -153,10 +153,12 @@ module Synchrony
       result = ''
       old_priority = RemoteIssuePriority.by_id(detail.old_value)
       new_priority = RemoteIssuePriority.by_id(detail.new_value)
-      result << "*#{I18n.t(:field_priority)}:* "
-      result << old_priority.name if old_priority
-      result << ' >> '
-      result << new_priority.name if new_priority
+      if old_priority || new_priority
+        result << "*#{I18n.t(:field_priority)}:* "
+        result << old_priority.name if old_priority
+        result << ' >> '
+        result << new_priority.name if new_priority
+      end
       result
     end
 
