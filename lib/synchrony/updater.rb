@@ -17,7 +17,7 @@ module Synchrony
     def sync_issues
       created_issues = 0
       updated_issues = 0
-      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id,
+      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id, status_id: '*',
                                          updated_on: ">=#{START_DATE}" })
       issues.each do |remote_issue|
         issue = Issue.where(synchrony_id: remote_issue.id, project_id: target_project).first

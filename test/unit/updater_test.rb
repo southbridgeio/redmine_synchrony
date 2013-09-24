@@ -150,7 +150,7 @@ class UpdaterTest < ActiveSupport::TestCase
 
   def fake_remote_redmine(site, tracker)
     FakeWeb.allow_net_connect = false
-    issues_uri = "#{site}issues.xml?tracker_id=#{tracker.id}" +
+    issues_uri = "#{site}issues.xml?status_id=#{ERB::Util.url_encode('*')}&tracker_id=#{tracker.id}" +
                                 "&updated_on=#{ERB::Util.url_encode('>=')}#{Synchrony::Updater::START_DATE}"
     FakeWeb.register_uri(:get, issues_uri,
                          body: File.read(File.expand_path('../../fixtures/xml/issues.xml', __FILE__)))
