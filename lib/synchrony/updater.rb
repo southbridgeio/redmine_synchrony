@@ -140,8 +140,8 @@ module Synchrony
 
     def details_for_assigned_to_id(detail)
       result = ''
-      old_user = RemoteUser.find(detail.old_value) if detail.old_value.present?
-      new_user = RemoteUser.find(detail.new_value) if detail.new_value.present?
+      old_user = RemoteUser.by_id(detail.old_value) if detail.old_value.present?
+      new_user = RemoteUser.by_id(detail.new_value) if detail.new_value.present?
       result << "*#{I18n.t(:field_assigned_to)}:* "
       result << "#{old_user.firstname} #{old_user.lastname}" if old_user
       result << ' >> '
