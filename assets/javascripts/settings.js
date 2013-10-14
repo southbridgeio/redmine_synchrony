@@ -27,20 +27,19 @@ $(function(){
 
   var selectField = function(field_name, values, nextId, required){
     if(typeof(required)==='undefined') required = false;
-    var options = [];
+    var select = $(
+      '<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">'
+    );
+    if(required){
+      select.addClass('required');
+    }
     if(!values.hasOwnProperty('')){
-      options.push($('<option></option>'));
+      $('<option></option>').appendTo(select);
     }
     for (var id in values) {
       if (values.hasOwnProperty(id)) {
-        options.push($('<option value="' + id + '">' + values[id] + '</option>'))
+        $('<option value="' + id + '">' + values[id] + '</option>').appendTo(select);
       }
-    }
-    var select = $(
-      '<select id="settings_redmine_' + nextId +'_' + field_name + '" name="settings[redmine][][' + field_name + ']">'
-    ).append(options);
-    if(required){
-      select.addClass('required');
     }
     return $('<p>').append(
       label(field_name, nextId, required)
