@@ -110,11 +110,13 @@ module Synchrony
           notes = "h3. \"#{remote_journal.user.name}\":#{source_site}users/#{remote_journal.user.id}:\n\n" +
               "#{journal_details(remote_journal)}#{remote_journal.notes}"
           Journal.transaction do
-            journal = issue.journals.create(user: User.anonymous, notes: notes, synchrony_id: remote_journal.id)
+            journal = issue.journals.create(user: User.anonymous, notes: notes, synchrony_id: remote_journal.id )
             Journal.where(id: journal.id).update_all(created_on: Time.parse(remote_journal.created_on))
           end
         end
         issue.journals.reload
+	issue.status_id=1
+	issue.save()
       end
     end
 
