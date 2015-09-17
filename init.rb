@@ -1,3 +1,5 @@
+require 'active_resource'
+
 Redmine::Plugin.register :redmine_synchrony do
   name 'Redmine Synchrony plugin'
   author 'Pavel Nemkin'
