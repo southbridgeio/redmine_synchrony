@@ -3,6 +3,8 @@
 Plugin makes copies of last updated issues and journals from another redmine instance via API.
 Plugin compatible with Redmine 2.0.x, 2.1.x, 2.2.x, 2.3.x, 2.5.x, 3.2.x (for source and destination instance)
 
+Please help us make this plugin better telling us of any [issues](https://github.com/centosadmin/redmine_synchrony/issues) you'll face using it. We are ready to answer all your questions regarding this plugin.
+
 ## WARNING
 
 All **rake** commands must be run with correct **RAILS_ENV** variable, e.g.
