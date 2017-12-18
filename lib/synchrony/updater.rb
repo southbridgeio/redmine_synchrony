@@ -1,10 +1,9 @@
 module Synchrony
 
   class Updater
-
-    START_DATE = Date.yesterday.strftime('%Y-%m-%d')
-
     attr_reader :settings
+
+    LIMIT = 50
 
     def initialize(settings)
       @settings = settings
@@ -14,11 +13,26 @@ module Synchrony
       prepare_local_resources
     end
 
+    def self.default_date
+      Date.today
+    end
+
+    def sync_date
+      (last_sync_date || Synchrony::Updater.default_date).yesterday
+    end
+
+    def last_sync_date
+      Issue.pluck(:synchronized_at).compact.last
+    end
+
     def sync_issues
       created_issues = 0
       updated_issues = 0
-      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id, status_id: '*',
-                                         updated_on: ">=#{START_DATE}" })
+
+      issues = RemoteIssue.all(params: { tracker_id: source_tracker.id,
+                                         limit: LIMIT,
+                                         status_id: '*',
+                                         updated_on: ">=#{sync_date.strftime('%Y-%m-%d')}" })
       issues.each do |remote_issue|
         issue = Issue.where(synchrony_id: remote_issue.id, project_id: target_project).first
         if issue.present?
