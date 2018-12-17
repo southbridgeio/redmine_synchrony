@@ -54,9 +54,7 @@ module Synchrony
     private
 
     def prepare_remote_resources
-      %w(Synchrony::RemoteTracker Synchrony::RemoteIssue Synchrony::RemoteIssueStatus
-                Synchrony::RemoteUser Synchrony::RemoteIssuePriority).each do |resource_class_name|
-        resource_class = resource_class_name.constantize
+      [RemoteTracker, RemoteIssue, RemoteIssueStatus, RemoteUser, RemoteIssuePriority].each do |resource_class|
         resource_class.site = source_site
         resource_class.headers['X-Redmine-API-Key'] = api_key
       end
