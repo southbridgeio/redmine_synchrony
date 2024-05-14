@@ -1,6 +1,6 @@
 require 'active_resource'
 
-Rails.application.config.eager_load_paths << "#{Rails.root}/plugins/redmine_synchrony/{lib}"
+Rails.application.config.eager_load_paths += Dir.glob("#{Rails.root}/plugins/redmine_synchrony/{lib}")
 
 Redmine::Plugin.register :redmine_synchrony do
   name 'Redmine Synchrony plugin'
