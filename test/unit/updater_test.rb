@@ -1,5 +1,5 @@
 require File.expand_path('../../test_helper', __FILE__)
-require "#{Rails.root}/plugins/redmine_synchrony/lib/synchrony/updater"
+require 'synchrony/updater'
 require 'fakeweb'
 
 class UpdaterTest < ActiveSupport::TestCase

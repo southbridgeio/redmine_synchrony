@@ -115,7 +115,6 @@ module Synchrony
     end
 
     def update_journals(issue, remote_issue)
-      issue.reload
       remote_issue = RemoteIssue.find(remote_issue.id, params: {include: :journals})
       remote_issue.journals.each do |remote_journal|
         journal = issue.journals.where(synchrony_id: remote_journal.id).first
