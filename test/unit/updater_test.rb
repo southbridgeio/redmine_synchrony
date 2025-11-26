@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 require "#{Rails.root}/plugins/redmine_synchrony/lib/synchrony/updater"
-require 'fakeweb'
+require 'webmock/minitest'
 
 class UpdaterTest < ActiveSupport::TestCase
 
@@ -13,8 +13,8 @@ class UpdaterTest < ActiveSupport::TestCase
     @target_project = Project.find(1)
     @target_tracker = Tracker.find(1)
     @valid_settings = {
-        'source_site' => @remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => @source_tracker.name,
-        'target_project' => @target_project.id.to_s, 'target_tracker' => @target_tracker.id.to_s
+      'source_site' => @remote_redmine_url, 'api_key' => 'some_api_key', 'source_tracker' => @source_tracker.name,
+      'target_project' => @target_project.id.to_s, 'target_tracker' => @target_tracker.id.to_s
     }
   end
 
@@ -30,7 +30,7 @@ class UpdaterTest < ActiveSupport::TestCase
 
   def test_invalid_source_site
     invalid_site = 'http://site-which-does-not-exist.local/'
-    FakeWeb.register_uri(:get, "#{invalid_site}trackers.xml", exception: SocketError )
+    stub_request(:get, "#{invalid_site}trackers.xml").to_raise(SocketError)
     invalid_settings = @valid_settings.dup
     invalid_settings['source_site'] = invalid_site
     assert_raises(Synchrony::Errors::InvalidSourceSiteError) do
@@ -138,8 +138,9 @@ class UpdaterTest < ActiveSupport::TestCase
   end
 
   def test_journal_priority_detail_for_old_redmine_versions
-    FakeWeb.register_uri(:get, "#{@remote_redmine_url}enumerations/issue_priorities.xml",
-                         status: ['404', 'Not found'])
+    stub_request(:get, "#{@remote_redmine_url}enumerations/issue_priorities.xml")
+      .to_return(status: 404, body: "Not found")
+
     Synchrony::Updater.new(@valid_settings).sync_issues
     journal = Journal.where(synchrony_id: 7).first # from fixture
     assert !journal.notes.include?('Normal'), 'Journal should not have priority changing text'
@@ -149,23 +150,43 @@ class UpdaterTest < ActiveSupport::TestCase
   private
 
   def fake_remote_redmine(site, tracker)
-    FakeWeb.allow_net_connect = false
-    issues_uri = "#{site}issues.xml?limit=#{Synchrony::Updater::LIMIT}&status_id=#{ERB::Util.url_encode('*')}&tracker_id=#{tracker.id}" +
-                                "&updated_on=#{ERB::Util.url_encode('>=')}#{Date.yesterday.strftime('%Y-%m-%d')}"
-    FakeWeb.register_uri(:get, issues_uri,
-                         body: File.read(File.expand_path('../../fixtures/xml/issues.xml', __FILE__)))
-    [1, 2].each do |issue_id|
-      FakeWeb.register_uri(:get, "#{site}issues/#{issue_id}.xml?include=journals",
-                           body: File.read(File.expand_path("../../fixtures/xml/issue_#{issue_id}.xml", __FILE__)))
-    end
-    %w(trackers issue_statuses).each do |resource_name|
-      FakeWeb.register_uri(:get, "#{site}#{resource_name}.xml",
-                           body: File.read(File.expand_path("../../fixtures/xml/#{resource_name}.xml", __FILE__)))
-    end
-    FakeWeb.register_uri(:get, "#{site}enumerations/issue_priorities.xml",
-                         body: File.read(File.expand_path('../../fixtures/xml/issue_priorities.xml', __FILE__)))
-    FakeWeb.register_uri(:get, "#{site}users/1.xml",
-                         body: File.read(File.expand_path('../../fixtures/xml/user_1.xml', __FILE__)))
-  end
+    WebMock.disable_net_connect!
 
+    issues_uri = "#{site}issues.xml?limit=#{Synchrony::Updater::LIMIT}&status_id=#{ERB::Util.url_encode('*')}&tracker_id=#{tracker.id}" +
+      "&updated_on=#{ERB::Util.url_encode('>=')}#{Date.yesterday.strftime('%Y-%m-%d')}"
+
+    stub_request(:get, issues_uri)
+      .to_return(
+        body: File.read(File.expand_path('../../fixtures/xml/issues.xml', __FILE__)),
+        headers: { 'Content-Type' => 'application/xml' }
+      )
+
+    [1, 2].each do |issue_id|
+      stub_request(:get, "#{site}issues/#{issue_id}.xml?include=journals")
+        .to_return(
+          body: File.read(File.expand_path("../../fixtures/xml/issue_#{issue_id}.xml", __FILE__)),
+          headers: { 'Content-Type' => 'application/xml' }
+        )
+    end
+
+    %w(trackers issue_statuses).each do |resource_name|
+      stub_request(:get, "#{site}#{resource_name}.xml")
+        .to_return(
+          body: File.read(File.expand_path("../../fixtures/xml/#{resource_name}.xml", __FILE__)),
+          headers: { 'Content-Type' => 'application/xml' }
+        )
+    end
+
+    stub_request(:get, "#{site}enumerations/issue_priorities.xml")
+      .to_return(
+        body: File.read(File.expand_path('../../fixtures/xml/issue_priorities.xml', __FILE__)),
+        headers: { 'Content-Type' => 'application/xml' }
+      )
+
+    stub_request(:get, "#{site}users/1.xml")
+      .to_return(
+        body: File.read(File.expand_path('../../fixtures/xml/user_1.xml', __FILE__)),
+        headers: { 'Content-Type' => 'application/xml' }
+      )
+  end
 end

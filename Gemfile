@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'activeresource'
+gem 'activeresource', '~> 6.1.4'
 
 group :test do
-  gem 'fakeweb', '~> 1.3', require: false
+  gem 'webmock'
 end
