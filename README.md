@@ -3,7 +3,7 @@
 # Redmine Synchrony
 
 Plugin makes copies of last updated issues and journals from another redmine instance via API.
-Plugin compatible with Redmine 2.0.x, 2.1.x, 2.2.x, 2.3.x, 2.5.x, 3.2.x (for source and destination instance)
+Plugin compatible with Redmine 5.1.x, 6.0.x, 6.1.x. Compatibility with earlier versions of Redmine has not been tested.
 
 Please help us make this plugin better telling us of any [issues](https://github.com/southbridgeio/redmine_synchrony/issues) you'll face using it. We are ready to answer all your questions regarding this plugin.
 
@@ -20,7 +20,7 @@ RAILS_ENV=production rake redmine:plugins:migrate
 
 2. Clone repository to your redmine/plugins directory
 ```
-git clone https://github.com/olemskoi/redmine_synchrony.git
+git clone https://github.com/southbridgeio/redmine_synchrony.git
 ```
 
 3. Run migrations
